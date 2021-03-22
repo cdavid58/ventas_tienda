@@ -1,0 +1,190 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}
+<br><br>
+<h2 class="col">DETALLE DEL CARRITO</h2><hr><br>
+<div class="container-fluid">
+  <div class="row table-responsive">
+    <table id="example" class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 7%;">Imagen</th>
+                <th style="width: 30%;">Articulo</th>
+                <th style="width: 10%;">Cantidad</th>
+                <th style="width: 10%;">Precio</th>
+                <th style="width: 10%;">Total</th>
+                <th style="width: 10%;">Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for i in cartShop %}
+            <tr>
+                <td><img src="{{i.img}}" width="80" height="50"></td>
+                <td>{{i.articulo}}</td>
+                <td>{{i.cantidad}}</td>
+                <td>{{i.precio}}</td>
+                <td>{{i.total}}</td>
+                <td><button class="btn btn-success" type="button" id="{{i.codigo}}">Eliminar</button></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<br><br>
+<div class="alert alert-success" id="alerta" style="display: none;" role="alert">
+  <strong>ALERTA!</strong> DEBE LLENAR TODOS LOS CAMPOS CON SUS DATOS!.</a>.
+</div>
+  <div class="container">
+    
+    <form method="post" id="formulario">{% csrf_token %}
+      <input type="text" id="formaPago" hidden name="formaPago">
+      {% if no_existe == 0 %}
+      <h2>Formulario de Datos.</h2>
+      <hr>
+        <input type="number" hidden value="0" name="codigo">
+        <div class="row">
+          <div class="form-group col-md-4 col-12">
+            <label>Nombre</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" required>
+          </div>
+          <div class="form-group col-md-4 col-12">
+            <label>Apellido</label>
+            <input type="text" class="form-control" id="apellido" name="apellido" required>
+          </div>
+          <div class="form-group col-md-4 col-12">
+            <label>Teléfono</label>
+            <input type="number" class="form-control" id="telefono" value="{{request.session.tlfUsario}}" disabled name="telefono" required>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="form-group col-md-4 col-12">
+            <label>Dirección</label>
+            <textarea class="form-control" name="direccion" id="example12" required rows="2" style="resize: none;"></textarea>
+          </div>
+          <div class="form-group col-md-4 col-12">
+            <label>Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+          <div class="form-group col-md-4 col-12">
+            <label>Teléfono</label>
+            <input type="number" class="form-control" id="tlf" name="tlf" required>
+          </div>
+        </div>
+
+        
+      {% else %}
+        <input type="number" hidden value="1" name="codigo">
+        
+      {% endif %}
+      <br><br>
+      <div class="row">
+        <a class="btn btn-success" style="text-decoration: none;" href="#" type="button" id="pago" >Proceder a pagar</a>
+      </div>
+      
+    </form>
+  </div>
+
+
+<br><br>
+<br><br>
+<br><br>
+
+{% endblock %}
+{% block script %}
+
+  <script>
+      $(document).ready(function() {
+        let valido = "";
+        $("#pago").click(function(e){
+          e.preventDefault();
+          if($("#nombre").val() != "" && $("#apellido").val() != "" && $("#telefono").val() != "" && $("#example12").val() != "" && $("#email").val() != "" && $("#tlf").val() != ""){
+            $("#alerta").css('display','none');
+            var checkout = new WidgetCheckout({
+              src:"https://checkout.wompi.co/widget.js",
+              currency: 'COP',
+              amountInCents: parseInt('{{monto}}')+'0',
+              reference: 'AD{{refe}}',
+              publicKey: 'pub_test_Zs0LVNeaLOG440kKSAp0YRXBO8M0VBP0',
+              redirectUrl: 'https://transaction-redirect.wompi.co/check' // Opcional
+            });
+            
+            checkout.open(function ( result ) {
+              var transaction = result.transaction
+              console.log('Transaction ID: ', transaction.id);
+              console.log('Transaction object: ', transaction.status);
+              console.log('Transaction object: ', transaction)
+              valido = transaction.status;
+              $("#formaPago").val(transaction.paymentMethodType);
+              if(valido == "APPROVED"){
+                $("#formulario").submit();
+                console.log('Hola')
+              }
+              else{
+                console.log('Error');
+              }
+            });
+          }
+          else{
+            $("#alerta").css('display','block');
+          }
+          
+
+        });
+
+        $(document).on('click', 'input[type="radio"]',function(){
+          if(this.id == "pagonequi"){
+            $("#nequi").css('display','block');
+            $("#pse").css('display','none');
+            $("#tarjetaCredito").css('display','none');
+          }
+          else if(this.id == "pagopse"){
+            $("#nequi").css('display','none');
+            $("#pse").css('display','block');
+            $("#tarjetaCredito").css('display','none');
+          }
+          else{
+            $("#nequi").css('display','none');
+            $("#pse").css('display','none');
+            $("#tarjetaCredito").css('display','block')
+          }
+
+
+        });
+
+        $('#example').DataTable({
+            "aLengthMenu": [[5, 10, 25, -1], [5, 10, 25, "All"]],
+            "iDisplayLength": 5
+          });
+
+        // $('#tarjetaValida').validateCreditCard(function(result) {
+        //     if($("#tarjetaValida").val() == ''){
+        //       $('#log').html('Tipo de Tarjeta: No hay');
+        //     }
+        //     else{
+        //       $('#log').html('Tipo de Tarjeta: ' + (result.card_type == null ? 'Tarjeta Invalida' : result.card_type.name)
+
+        //         );
+        //     }
+        // });
+
+
+
+
+        $('button[type="button"]').click(function(){
+          $.ajax({
+            url : '/viewCart/',
+            data:{'pk':this.id},
+            success: function(data){
+              document.getElementById('carrito').innerHTML = data;
+              location.reload(true);
+            }
+          });
+        });
+
+      });
+  </script>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends './base.html' %}
+{% load static %}
+{% block content %}<br><br>
+<div class="container">
+  <div class=""></div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="x_panel">
+        <div class="x_title">
+          <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+
+          <section class="content invoice">
+            <!-- title row -->
+            <div class="row">
+              <div class="col-md-12 invoice-header">
+                <h1>
+                    <i class="fa fa-globe"></i> ORDEN DE VENTA #1.
+                </h1>
+              </div>
+            </div>
+            <br>
+            <div class="row invoice-info">
+              <div class="col-sm-4 invoice-col">
+                De:
+                <address>
+                  <strong><h3>JET FLASH</h3></strong>
+                </address>
+              </div>
+              <div class="col-sm-4 invoice-col">
+                Para:
+                <address>
+                  <strong>Nombre: {{usr.nombre}}  {{usr.apellido}}</strong>
+                  <br>Dirección: {{usr.direccion}}
+                  <br>Telefono: {{usr.telefono}}
+                  <br>Email: {{usr.email}}
+                </address>
+              </div>
+              <div class="col-sm-4 invoice-col"><br>
+                <b>Fecha Generación:</b> {{f.fecha}}<br>
+                <b>Forma de Pago: </b> {{f.formaPago}}<br>
+                <b>Total:</b> $ {{total|floatformat:2}}
+              </div>
+            </div>
+           <br><br>
+
+            <div class="row">
+              <div class="col-xs-12 table">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th style="width: 23%">Producto</th>
+                      <th style="width: 10%">Cantidad</th>
+                      <th style="width: 10%">Valor Base.</th>
+                      <th style="width: 10%">Neto</th>
+                  </thead>
+                  <tbody>
+                    {% for i in carShop %}
+                      <tr>
+                        <td>{{i.articulo}}</td>
+                        <td>{{i.cantidad}}</td>
+
+                        <td>${{i.precio | floatformat:2 }}</td>
+                        <td>${{i.total | floatformat:2}}</td>
+                      </tr>
+
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.col -->
+            </div>
+            <!-- /.row -->
+
+             <div class="row">
+              <div class="col-md-5 col-5">
+                <!--div class="table-responsive"-->
+                  <!--table class="table">
+                    <tr>
+                      <th style="width: 10%">Base Producto</th>
+                      <th style="width: 10%">IVA</th>
+                    </tr>
+                    <tbody>
+                      <tr><th>${{costo}}</th>
+                      <th>${{iva}}</th></tr>
+                    </tbody>
+                  </table-->
+                <!--/div-->
+              </div>
+              <!-- /.col -->
+              <p class="col-md-2 col-2 "></p>
+              <div class="col-md-5 col-5 ">
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <!--tr>
+                        <th style="width:50%">Neto:</th>
+                        <td>${{neto | floatformat:2}}</td>
+                      </tr-->
+                      <tr>
+                        <th>SubTotal:</th>
+                        <td style="text-align: center;"><p style="font-size: 13px;" id="netoValor">{{subTotal | floatformat:2}}</p></td>
+                      </tr>
+                      <tr>
+                        <th>Descuento:</th>
+                        <td style="text-align: center;"><p style="font-size: 13px;" id="descuento">{{descuento | floatformat:2}}</p></td>
+                      </tr>                     
+                      <tr>
+                        <th>Total:</th>
+                        <td style="text-align: center;"><p style="font-size: 13px;" id="neto">{{total | floatformat:2}}</p></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <!-- /.col -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
